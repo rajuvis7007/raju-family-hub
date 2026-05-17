@@ -44,11 +44,33 @@ insert into storage.buckets (id, name, public)
 values ('task-attachments', 'task-attachments', true)
 on conflict (id) do nothing;
 
--- Storage RLS policies (anon upload + delete)
-create policy "task-attachments anon upload"
-  on storage.objects for insert to anon
-  with check (bucket_id = 'task-attachments');
+-- Storage RLS policies (anon upload + delete) — skip if already present
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'storage'
+      and tablename  = 'objects'
+      and policyname = 'task-attachments anon upload'
+  ) then
+    execute $p$
+      create policy "task-attachments anon upload"
+        on storage.objects for insert to anon
+        with check (bucket_id = 'task-attachments')
+    $p$;
+  end if;
 
-create policy "task-attachments anon delete"
-  on storage.objects for delete to anon
-  using (bucket_id = 'task-attachments');
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'storage'
+      and tablename  = 'objects'
+      and policyname = 'task-attachments anon delete'
+  ) then
+    execute $p$
+      create policy "task-attachments anon delete"
+        on storage.objects for delete to anon
+        using (bucket_id = 'task-attachments')
+    $p$;
+  end if;
+end
+$$;
