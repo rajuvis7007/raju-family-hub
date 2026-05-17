@@ -44,7 +44,10 @@ type State = {
 // ── Context value ─────────────────────────────────────────────
 
 type ContextValue = State & {
+  hasMoreAlbums: boolean
+  isLoadingMoreAlbums: boolean
   fetchAlbums: () => Promise<void>
+  loadMoreAlbums: () => Promise<void>
   openAlbum:   (album: Album) => Promise<void>
   closeAlbum:  () => void
   createAlbum: (input: CreateAlbumInput) => Promise<Album | null>
@@ -57,11 +60,17 @@ type ContextValue = State & {
   deletePhoto: (photoId: string, albumId: string) => Promise<void>
 }
 
+const ALBUMS_PAGE_SIZE = 24
+
 const PhotosContext = createContext<ContextValue>({} as ContextValue)
 
 // ── Provider ──────────────────────────────────────────────────
 
 export function PhotosProvider({ children }: { children: React.ReactNode }) {
+  const [hasMoreAlbums, setHasMoreAlbums]           = useState(false)
+  const [isLoadingMoreAlbums, setIsLoadingMoreAlbums] = useState(false)
+  const [albumsOffset, setAlbumsOffset]             = useState(ALBUMS_PAGE_SIZE)
+
   const [state, setState] = useState<State>({
     view:            'albums',
     albums:          [],
@@ -81,23 +90,62 @@ export function PhotosProvider({ children }: { children: React.ReactNode }) {
 
     setState((s) => ({ ...s, isLoadingAlbums: true, albumsError: null }))
 
-    const { data, error } = await supabase
-      .from('albums')
-      .select('*, photos(count)')
-      .order('created_at', { ascending: false })
+    const [res, countRes] = await Promise.all([
+      supabase
+        .from('albums')
+        .select('*, photos(count)')
+        .order('created_at', { ascending: false })
+        .range(0, ALBUMS_PAGE_SIZE - 1),
+      supabase
+        .from('albums')
+        .select('*', { count: 'exact', head: true }),
+    ])
 
-    if (error) {
-      setState((s) => ({ ...s, isLoadingAlbums: false, albumsError: error.message }))
+    if (res.error) {
+      setState((s) => ({ ...s, isLoadingAlbums: false, albumsError: res.error.message }))
       return
     }
 
-    const albums = (data ?? []).map((row: Record<string, unknown>) => {
+    const albums = (res.data ?? []).map((row: Record<string, unknown>) => {
       const counts = row.photos as [{ count: number }] | undefined
       return rowToAlbum(row, counts?.[0]?.count ?? 0)
     })
 
+    const total = countRes.count ?? 0
+    setHasMoreAlbums(total > ALBUMS_PAGE_SIZE)
+    setAlbumsOffset(ALBUMS_PAGE_SIZE)
     setState((s) => ({ ...s, albums, isLoadingAlbums: false }))
   }, [])
+
+  // ── loadMoreAlbums ───────────────────────────────────────────
+
+  const loadMoreAlbums = useCallback(async () => {
+    const supabase = getSupabaseClient()
+    if (!supabase || isLoadingMoreAlbums) return
+    setIsLoadingMoreAlbums(true)
+
+    const [res, countRes] = await Promise.all([
+      supabase
+        .from('albums')
+        .select('*, photos(count)')
+        .order('created_at', { ascending: false })
+        .range(albumsOffset, albumsOffset + ALBUMS_PAGE_SIZE - 1),
+      supabase
+        .from('albums')
+        .select('*', { count: 'exact', head: true }),
+    ])
+
+    const more = (res.data ?? []).map((row: Record<string, unknown>) => {
+      const counts = row.photos as [{ count: number }] | undefined
+      return rowToAlbum(row, counts?.[0]?.count ?? 0)
+    })
+
+    const total = countRes.count ?? 0
+    setState((s) => ({ ...s, albums: [...s.albums, ...more] }))
+    setAlbumsOffset((prev) => prev + ALBUMS_PAGE_SIZE)
+    setHasMoreAlbums(albumsOffset + ALBUMS_PAGE_SIZE < total)
+    setIsLoadingMoreAlbums(false)
+  }, [albumsOffset, isLoadingMoreAlbums])
 
   // ── openAlbum ───────────────────────────────────────────────
 
@@ -279,7 +327,8 @@ export function PhotosProvider({ children }: { children: React.ReactNode }) {
   return (
     <PhotosContext.Provider value={{
       ...state,
-      fetchAlbums, openAlbum, closeAlbum,
+      hasMoreAlbums, isLoadingMoreAlbums,
+      fetchAlbums, loadMoreAlbums, openAlbum, closeAlbum,
       createAlbum, uploadPhotos, deletePhoto,
     }}>
       {children}

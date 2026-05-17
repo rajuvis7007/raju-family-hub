@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useFamily } from '../context/FamilyContext'
-import { useTasks, type AttachmentFile, type AttachmentMediaType } from '../context/TasksContext'
+import { useTasks, type AttachmentFile, type AttachmentMediaType, validateAttachmentSize } from '../context/TasksContext'
+import { useToast } from '../context/ToastContext'
 
 type Props = {
   onClose: () => void
@@ -49,6 +50,7 @@ function AttachmentIcon({ type }: { type: AttachmentMediaType }) {
 export function NewTaskModal({ onClose }: Props) {
   const { members } = useFamily()
   const { addTask } = useTasks()
+  const { addToast } = useToast()
 
   const [title, setTitle] = useState('')
   const [memberId, setMemberId] = useState<string | null>(null)
@@ -75,10 +77,13 @@ export function NewTaskModal({ onClose }: Props) {
 
   function pickFiles(files: FileList | null) {
     if (!files) return
-    const picked: PickedFile[] = Array.from(files).map((file) => ({
-      file,
-      mediaType: detectMediaType(file),
-    }))
+    const picked: PickedFile[] = []
+    for (const file of Array.from(files)) {
+      const mediaType = detectMediaType(file)
+      const err = validateAttachmentSize(file, mediaType)
+      if (err) { addToast(err, 'error'); continue }
+      picked.push({ file, mediaType })
+    }
     setAttachments((prev) => [...prev, ...picked])
   }
 
@@ -91,7 +96,10 @@ export function NewTaskModal({ onClose }: Props) {
     if (!canSubmit) return
     setIsSubmitting(true)
     const files: AttachmentFile[] = attachments.map(({ file, mediaType }) => ({ file, mediaType }))
-    await addTask({ title: title.trim(), memberId: memberId!, dueDate: dueDate || null }, files)
+    const { failedNames } = await addTask({ title: title.trim(), memberId: memberId!, dueDate: dueDate || null }, files)
+    if (failedNames.length > 0) {
+      addToast(`${failedNames.length} attachment${failedNames.length > 1 ? 's' : ''} failed to upload`, 'error')
+    }
     setIsSubmitting(false)
     onClose()
   }

@@ -4,7 +4,18 @@ import { useCallback, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useFamily } from '../context/FamilyContext'
 import { usePhotos, type UploadProgress } from '../context/PhotosContext'
+import { useToast } from '../context/ToastContext'
 import type { Album, CreateAlbumInput, Photo } from './PhotoTypes'
+
+const MAX_PHOTO_BYTES = 200 * 1024 * 1024 // 200 MB
+
+function validatePhotoSize(file: File): string | null {
+  if (file.size > MAX_PHOTO_BYTES) {
+    const mb = Math.round(file.size / 1024 / 1024)
+    return `"${file.name}" is ${mb} MB — photos and videos must be under 200 MB`
+  }
+  return null
+}
 
 type Step = 'pick-files' | 'choose-album' | 'uploading' | 'done'
 
@@ -122,6 +133,7 @@ function InlineAlbumForm({ onCreated, onCancel }: InlineAlbumFormProps) {
 export function UploadFlow({ preselectedAlbumId, onClose, onDone }: Props) {
   const { members } = useFamily()
   const { albums, uploadPhotos } = usePhotos()
+  const { addToast } = useToast()
 
   const [step, setStep] = useState<Step>('pick-files')
   const [files, setFiles] = useState<File[]>([])
@@ -141,7 +153,13 @@ export function UploadFlow({ preselectedAlbumId, onClose, onDone }: Props) {
   // ── File helpers ─────────────────────────────────────────────────────────
 
   function acceptFiles(newFiles: File[]) {
-    const valid = newFiles.filter((f) => f.type.startsWith('image/') || f.type.startsWith('video/'))
+    const valid: File[] = []
+    for (const f of newFiles) {
+      if (!f.type.startsWith('image/') && !f.type.startsWith('video/')) continue
+      const err = validatePhotoSize(f)
+      if (err) { addToast(err, 'error'); continue }
+      valid.push(f)
+    }
     if (valid.length === 0) return
     const urls = valid.map((f) => URL.createObjectURL(f))
     setFiles((prev) => [...prev, ...valid])

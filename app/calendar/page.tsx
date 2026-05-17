@@ -460,7 +460,7 @@ function CreateEventModal({ defaultDate, onClose }: CreateEventProps) {
 
 export default function CalendarPage() {
   const { members }                                  = useFamily()
-  const { events, isLoading: eventsLoading, deleteEvent } = useCalendar()
+  const { events, isLoading: eventsLoading, eventsError, deleteEvent } = useCalendar()
   const { tasks }                                    = useTasks()
 
   const [viewDate, setViewDate]       = useState(() => new Date())
@@ -523,6 +523,12 @@ export default function CalendarPage() {
   return (
     <>
       <div className="mx-auto max-w-5xl space-y-4">
+        {eventsError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            Failed to load events: {eventsError}
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">

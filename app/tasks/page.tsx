@@ -9,7 +9,7 @@ import { NewTaskModal } from './NewTaskModal'
 
 export default function TasksPage() {
   const { members } = useFamily()
-  const { tasks, toggleDone, deleteTask, addAttachments } = useTasks()
+  const { tasks, toggleDone, deleteTask, addAttachments, hasMoreDone, isLoadingMore, loadMoreDone } = useTasks()
 
   const [filterMemberId, setFilterMemberId] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
@@ -150,6 +150,19 @@ export default function TasksPage() {
                     ))}
                   </ul>
                 </section>
+              )}
+
+              {/* Load more completed tasks */}
+              {hasMoreDone && (
+                <div className="border-t border-slate-100 px-4 py-3 text-center">
+                  <button
+                    onClick={loadMoreDone}
+                    disabled={isLoadingMore}
+                    className="text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:opacity-40"
+                  >
+                    {isLoadingMore ? 'Loading…' : 'Load more completed tasks'}
+                  </button>
+                </div>
               )}
             </>
           )}

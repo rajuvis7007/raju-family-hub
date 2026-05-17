@@ -48,6 +48,7 @@ function rowToEvent(row: AnyRow): CalendarEvent {
 type ContextValue = {
   events: CalendarEvent[]
   isLoading: boolean
+  eventsError: string | null
   createEvent: (input: CreateEventInput) => Promise<CalendarEvent | null>
   deleteEvent: (id: string) => Promise<void>
 }
@@ -55,18 +56,26 @@ type ContextValue = {
 const CalendarContext = createContext<ContextValue>({} as ContextValue)
 
 export function CalendarProvider({ children }: { children: React.ReactNode }) {
-  const [events, setEvents] = useState<CalendarEvent[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [events, setEvents]           = useState<CalendarEvent[]>([])
+  const [isLoading, setIsLoading]     = useState(true)
+  const [eventsError, setEventsError] = useState<string | null>(null)
 
   const fetchEvents = useCallback(async () => {
     const supabase = getSupabaseClient()
     if (!supabase) { setIsLoading(false); return }
 
-    const { data } = await supabase
+    setEventsError(null)
+    const { data, error } = await supabase
       .from('events')
       .select('*')
       .order('event_date', { ascending: true })
       .order('start_time', { ascending: true, nullsFirst: true })
+
+    if (error) {
+      setEventsError(error.message)
+      setIsLoading(false)
+      return
+    }
 
     setEvents(((data ?? []) as AnyRow[]).map(rowToEvent))
     setIsLoading(false)
@@ -107,7 +116,7 @@ export function CalendarProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <CalendarContext.Provider value={{ events, isLoading, createEvent, deleteEvent }}>
+    <CalendarContext.Provider value={{ events, isLoading, eventsError, createEvent, deleteEvent }}>
       {children}
     </CalendarContext.Provider>
   )

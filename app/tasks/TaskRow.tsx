@@ -3,6 +3,8 @@
 import { useRef, useState } from 'react'
 import Image from 'next/image'
 import type { Task, TaskAttachment, AttachmentMediaType, AttachmentFile } from '../context/TasksContext'
+import { validateAttachmentSize } from '../context/TasksContext'
+import { useToast } from '../context/ToastContext'
 import type { FamilyMember } from '../context/FamilyContext'
 
 type Props = {
@@ -10,7 +12,7 @@ type Props = {
   member: FamilyMember | undefined
   onToggle: () => void
   onDelete: () => void
-  onAddAttachments: (files: AttachmentFile[]) => Promise<void>
+  onAddAttachments: (files: AttachmentFile[]) => Promise<{ failedNames: string[] }>
 }
 
 function detectMediaType(file: File): AttachmentMediaType {
@@ -120,6 +122,7 @@ function AttachmentChip({ attachment }: { attachment: TaskAttachment }) {
 // ── TaskRow ───────────────────────────────────────────────────────────────────
 
 export function TaskRow({ task, member, onToggle, onDelete, onAddAttachments }: Props) {
+  const { addToast } = useToast()
   const dueDateInfo = getDueDateInfo(task.dueDate, task.done)
   const hasAttachments = task.attachments.length > 0
   const [isUploading, setIsUploading] = useState(false)
@@ -127,9 +130,19 @@ export function TaskRow({ task, member, onToggle, onDelete, onAddAttachments }: 
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return
-    const files: AttachmentFile[] = Array.from(fileList).map((f) => ({ file: f, mediaType: detectMediaType(f) }))
+    const files: AttachmentFile[] = []
+    for (const f of Array.from(fileList)) {
+      const mediaType = detectMediaType(f)
+      const err = validateAttachmentSize(f, mediaType)
+      if (err) { addToast(err, 'error'); continue }
+      files.push({ file: f, mediaType })
+    }
+    if (files.length === 0) return
     setIsUploading(true)
-    await onAddAttachments(files)
+    const { failedNames } = await onAddAttachments(files)
+    if (failedNames.length > 0) {
+      addToast(`${failedNames.length} attachment${failedNames.length > 1 ? 's' : ''} failed to upload`, 'error')
+    }
     setIsUploading(false)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }

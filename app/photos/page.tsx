@@ -558,7 +558,7 @@ function NewAlbumModal({ onClose }: { onClose: () => void }) {
 
 function AlbumsView() {
   const { members } = useFamily()
-  const { albums, isLoadingAlbums, albumsError, fetchAlbums, openAlbum } = usePhotos()
+  const { albums, isLoadingAlbums, albumsError, fetchAlbums, openAlbum, hasMoreAlbums, isLoadingMoreAlbums, loadMoreAlbums } = usePhotos()
   const [showUpload, setShowUpload] = useState(false)
   const [showNewAlbum, setShowNewAlbum] = useState(false)
 
@@ -631,16 +631,29 @@ function AlbumsView() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {albums.map((album) => (
-              <EventAlbumCard
-                key={album.id}
-                album={album}
-                creator={memberById[album.createdBy]}
-                onClick={() => openAlbum(album)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {albums.map((album) => (
+                <EventAlbumCard
+                  key={album.id}
+                  album={album}
+                  creator={memberById[album.createdBy]}
+                  onClick={() => openAlbum(album)}
+                />
+              ))}
+            </div>
+            {hasMoreAlbums && (
+              <div className="flex justify-center pt-2">
+                <button
+                  onClick={loadMoreAlbums}
+                  disabled={isLoadingMoreAlbums}
+                  className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50 disabled:opacity-40"
+                >
+                  {isLoadingMoreAlbums ? 'Loading…' : 'Load more albums'}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

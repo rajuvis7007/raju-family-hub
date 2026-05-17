@@ -6,6 +6,7 @@ import { TasksProvider } from "./context/TasksContext";
 import { PhotosProvider } from "./context/PhotosContext";
 import { CalendarProvider } from "./context/CalendarContext";
 import { NotificationsProvider } from "./context/NotificationsContext";
+import { ToastProvider } from "./context/ToastContext";
 import { AppShell } from "./components/AppShell";
 
 const geistSans = Geist({
@@ -34,6 +35,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="h-full bg-slate-50 font-sans">
+        <ToastProvider>
         <FamilyProvider>
           <TasksProvider>
             <PhotosProvider>
@@ -45,6 +47,7 @@ export default function RootLayout({
             </PhotosProvider>
           </TasksProvider>
         </FamilyProvider>
+        </ToastProvider>
       </body>
     </html>
   );
