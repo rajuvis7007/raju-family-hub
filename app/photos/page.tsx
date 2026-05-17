@@ -444,12 +444,123 @@ function GalleryView() {
   )
 }
 
+// ── NewAlbumModal ────────────────────────────────────────────────────────────
+
+function NewAlbumModal({ onClose }: { onClose: () => void }) {
+  const { members } = useFamily()
+  const { createAlbum, openAlbum } = usePhotos()
+  const [title, setTitle] = useState('')
+  const [eventDate, setEventDate] = useState('')
+  const [creatorId, setCreatorId] = useState<string | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const canSave = title.trim().length > 0 && creatorId !== null && !isSaving
+
+  async function handleSave() {
+    if (!canSave) return
+    setIsSaving(true)
+    setError(null)
+    const album = await createAlbum({ title: title.trim(), eventDate: eventDate || null, createdBy: creatorId! })
+    setIsSaving(false)
+    if (!album) { setError('Failed to create album. Please try again.'); return }
+    onClose()
+    openAlbum(album)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+          <h2 className="text-base font-semibold text-slate-900">New Album</h2>
+          <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-5 px-6 py-5">
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-slate-700">Album name</label>
+            <input
+              autoFocus
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSave() }}
+              placeholder="Summer vacation, Birthday party…"
+              className="w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-slate-700">
+              Event date <span className="font-normal text-slate-400">(optional)</span>
+            </label>
+            <input
+              type="date"
+              value={eventDate}
+              onChange={(e) => setEventDate(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-700">Created by</p>
+            <div className="grid grid-cols-4 gap-2">
+              {members.map((m) => {
+                const sel = creatorId === m.id
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setCreatorId(sel ? null : m.id)}
+                    className={`flex flex-col items-center gap-2 rounded-xl border-2 px-2 py-3 text-xs font-medium transition-all ${
+                      sel
+                        ? `${m.colors.border} ${m.colors.bgLight} ${m.colors.text}`
+                        : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm ring-2 ring-white ${m.colors.bg}`}>
+                      {m.initials}
+                    </span>
+                    {m.name}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <div className="flex justify-end gap-3 pt-1">
+            <button type="button" onClick={onClose} className="rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100">
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={!canSave}
+              className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {isSaving ? 'Creating…' : 'Create Album'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── AlbumsView ───────────────────────────────────────────────────────────────
 
 function AlbumsView() {
   const { members } = useFamily()
   const { albums, isLoadingAlbums, albumsError, fetchAlbums, openAlbum } = usePhotos()
   const [showUpload, setShowUpload] = useState(false)
+  const [showNewAlbum, setShowNewAlbum] = useState(false)
 
   useEffect(() => { fetchAlbums() }, [fetchAlbums])
 
@@ -469,15 +580,26 @@ function AlbumsView() {
             </p>
           </div>
 
-          <button
-            onClick={() => setShowUpload(true)}
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-            </svg>
-            Upload Photos
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              onClick={() => setShowNewAlbum(true)}
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              New Album
+            </button>
+            <button
+              onClick={() => setShowUpload(true)}
+              className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+              Upload Photos
+            </button>
+          </div>
         </div>
 
         {albumsError && (
@@ -521,6 +643,10 @@ function AlbumsView() {
           </div>
         )}
       </div>
+
+      {showNewAlbum && (
+        <NewAlbumModal onClose={() => setShowNewAlbum(false)} />
+      )}
 
       {showUpload && (
         <UploadFlow

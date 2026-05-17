@@ -141,10 +141,10 @@ export function UploadFlow({ preselectedAlbumId, onClose, onDone }: Props) {
   // ── File helpers ─────────────────────────────────────────────────────────
 
   function acceptFiles(newFiles: File[]) {
-    const images = newFiles.filter((f) => f.type.startsWith('image/'))
-    if (images.length === 0) return
-    const urls = images.map((f) => URL.createObjectURL(f))
-    setFiles((prev) => [...prev, ...images])
+    const valid = newFiles.filter((f) => f.type.startsWith('image/') || f.type.startsWith('video/'))
+    if (valid.length === 0) return
+    const urls = valid.map((f) => URL.createObjectURL(f))
+    setFiles((prev) => [...prev, ...valid])
     setPreviews((prev) => [...prev, ...urls])
   }
 
