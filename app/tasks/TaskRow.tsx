@@ -1,7 +1,8 @@
 'use client'
 
+import { useRef, useState } from 'react'
 import Image from 'next/image'
-import type { Task, TaskAttachment, AttachmentMediaType } from '../context/TasksContext'
+import type { Task, TaskAttachment, AttachmentMediaType, AttachmentFile } from '../context/TasksContext'
 import type { FamilyMember } from '../context/FamilyContext'
 
 type Props = {
@@ -9,6 +10,14 @@ type Props = {
   member: FamilyMember | undefined
   onToggle: () => void
   onDelete: () => void
+  onAddAttachments: (files: AttachmentFile[]) => Promise<void>
+}
+
+function detectMediaType(file: File): AttachmentMediaType {
+  if (file.type.startsWith('image/')) return 'image'
+  if (file.type.startsWith('video/')) return 'video'
+  if (file.type.startsWith('audio/')) return 'audio'
+  return 'pdf'
 }
 
 type DueDateInfo = { label: string; className: string }
@@ -110,9 +119,20 @@ function AttachmentChip({ attachment }: { attachment: TaskAttachment }) {
 
 // ── TaskRow ───────────────────────────────────────────────────────────────────
 
-export function TaskRow({ task, member, onToggle, onDelete }: Props) {
+export function TaskRow({ task, member, onToggle, onDelete, onAddAttachments }: Props) {
   const dueDateInfo = getDueDateInfo(task.dueDate, task.done)
   const hasAttachments = task.attachments.length > 0
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return
+    const files: AttachmentFile[] = Array.from(fileList).map((f) => ({ file: f, mediaType: detectMediaType(f) }))
+    setIsUploading(true)
+    await onAddAttachments(files)
+    setIsUploading(false)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   return (
     <div className={`group flex gap-3 px-4 py-3.5 transition-colors hover:bg-slate-50 ${task.done ? 'opacity-60' : ''}`}>
@@ -161,6 +181,34 @@ export function TaskRow({ task, member, onToggle, onDelete }: Props) {
           {member && (
             <span className={`sm:hidden h-2 w-2 shrink-0 rounded-full ${member.colors.bg}`} />
           )}
+
+          {/* Attach button */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            aria-label="Attach file"
+            className="shrink-0 rounded-lg p-1.5 text-slate-300 opacity-0 transition-all hover:bg-indigo-50 hover:text-indigo-400 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-indigo-300 disabled:opacity-40"
+          >
+            {isUploading ? (
+              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            ) : (
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+              </svg>
+            )}
+          </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*,audio/*,.pdf"
+            multiple
+            className="hidden"
+            onChange={(e) => handleFiles(e.target.files)}
+          />
 
           <button
             onClick={onDelete}

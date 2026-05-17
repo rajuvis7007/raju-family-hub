@@ -86,6 +86,7 @@ type ContextValue = {
   tasks: Task[]
   isLoading: boolean
   addTask: (input: AddTaskInput, files: AttachmentFile[]) => Promise<void>
+  addAttachments: (taskId: string, memberId: string, files: AttachmentFile[]) => Promise<void>
   toggleDone: (id: string) => Promise<void>
   deleteTask: (id: string) => Promise<void>
 }
@@ -166,6 +167,51 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     setTasks((prev) => [rowToTask(taskRow as AnyRow, attachments), ...prev])
   }, [])
 
+  // ── addAttachments ────────────────────────────────────────────────────────
+
+  const addAttachments = useCallback(async (taskId: string, memberId: string, files: AttachmentFile[]) => {
+    const supabase = getSupabaseClient()
+    if (!supabase) return
+
+    const newAttachments: TaskAttachment[] = []
+
+    for (const { file, mediaType } of files) {
+      const path = buildAttachmentPath(taskId, file)
+
+      const { error: storageErr } = await supabase.storage
+        .from(TASK_ATTACHMENTS_BUCKET)
+        .upload(path, file, { contentType: file.type, upsert: false })
+
+      if (storageErr) continue
+
+      const { data: { publicUrl } } = supabase.storage
+        .from(TASK_ATTACHMENTS_BUCKET)
+        .getPublicUrl(path)
+
+      const { data: attachRow } = await supabase
+        .from('task_attachments')
+        .insert({
+          task_id:               taskId,
+          storage_url:           publicUrl,
+          file_name:             file.name,
+          media_type:            mediaType,
+          uploaded_by_member_id: memberId,
+        })
+        .select()
+        .single()
+
+      if (attachRow) newAttachments.push(rowToAttachment(attachRow as AnyRow))
+    }
+
+    if (newAttachments.length > 0) {
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id !== taskId ? t : { ...t, attachments: [...t.attachments, ...newAttachments] }
+        )
+      )
+    }
+  }, [])
+
   // ── toggleDone ────────────────────────────────────────────────────────────
 
   const toggleDone = useCallback(async (id: string) => {
@@ -190,7 +236,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <TasksContext.Provider value={{ tasks, isLoading, addTask, toggleDone, deleteTask }}>
+    <TasksContext.Provider value={{ tasks, isLoading, addTask, addAttachments, toggleDone, deleteTask }}>
       {children}
     </TasksContext.Provider>
   )

@@ -9,7 +9,7 @@ import { NewTaskModal } from './NewTaskModal'
 
 export default function TasksPage() {
   const { members } = useFamily()
-  const { tasks, toggleDone, deleteTask } = useTasks()
+  const { tasks, toggleDone, deleteTask, addAttachments } = useTasks()
 
   const [filterMemberId, setFilterMemberId] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
@@ -120,6 +120,7 @@ export default function TasksPage() {
                           member={memberById[task.memberId]}
                           onToggle={() => toggleDone(task.id)}
                           onDelete={() => deleteTask(task.id)}
+                          onAddAttachments={(files) => addAttachments(task.id, task.memberId, files)}
                         />
                       </li>
                     ))}
@@ -143,6 +144,7 @@ export default function TasksPage() {
                           member={memberById[task.memberId]}
                           onToggle={() => toggleDone(task.id)}
                           onDelete={() => deleteTask(task.id)}
+                          onAddAttachments={(files) => addAttachments(task.id, task.memberId, files)}
                         />
                       </li>
                     ))}
