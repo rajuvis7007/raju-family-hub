@@ -5,6 +5,7 @@ import { FamilyProvider } from "./context/FamilyContext";
 import { TasksProvider } from "./context/TasksContext";
 import { PhotosProvider } from "./context/PhotosContext";
 import { CalendarProvider } from "./context/CalendarContext";
+import { NotificationsProvider } from "./context/NotificationsContext";
 import { AppShell } from "./components/AppShell";
 
 const geistSans = Geist({
@@ -37,7 +38,9 @@ export default function RootLayout({
           <TasksProvider>
             <PhotosProvider>
               <CalendarProvider>
-                <AppShell>{children}</AppShell>
+                <NotificationsProvider>
+                  <AppShell>{children}</AppShell>
+                </NotificationsProvider>
               </CalendarProvider>
             </PhotosProvider>
           </TasksProvider>

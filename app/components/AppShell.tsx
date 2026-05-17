@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { useFamily } from '../context/FamilyContext'
+import { useNotifications } from '../context/NotificationsContext'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { activeMember } = useFamily()
+  const { permission, urgentCount, requestPermission } = useNotifications()
 
   return (
     <div className="flex h-full">
@@ -34,15 +36,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="text-sm font-bold text-slate-900">Raju Family</span>
           </div>
 
-          {activeMember && (
-            <div className="ml-auto flex items-center gap-2">
-              <span
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${activeMember.colors.bg}`}
-              >
+          <div className="ml-auto flex items-center gap-2">
+            {/* Bell */}
+            <button
+              onClick={requestPermission}
+              title={permission === 'granted' ? 'Reminders on' : permission === 'denied' ? 'Reminders blocked' : 'Enable reminders'}
+              className="relative rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"
+            >
+              {permission === 'granted' ? (
+                <svg className="h-5 w-5 text-indigo-500" viewBox="0 0 24 24" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                </svg>
+              )}
+              {urgentCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+                  {urgentCount > 9 ? '9+' : urgentCount}
+                </span>
+              )}
+            </button>
+
+            {activeMember && (
+              <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${activeMember.colors.bg}`}>
                 {activeMember.initials}
               </span>
-            </div>
-          )}
+            )}
+          </div>
         </header>
 
         {/* Page content */}
