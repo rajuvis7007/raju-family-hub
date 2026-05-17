@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Raju Family Dashboard
+# Raju Family Hub
 
 A private family hub for Raju, Joshna, Amrita, and Shreya. Four tabs: Dashboard, Photos, Tasks, Calendar. Built with Next.js 16.2.6 / React 19 / Tailwind v4 / Supabase. Next planned step: **Capacitor for native Android/iOS**.
 

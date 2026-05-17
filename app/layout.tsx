@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Raju Family Dashboard",
+  title: "Raju Family Hub",
   description: "Our family hub for photos, tasks, and events",
 };
 
