@@ -46,7 +46,40 @@ function pruneOldKeys(today: string) {
   } catch { /* ignore */ }
 }
 
-function fire(title: string, body: string) {
+// Deterministic numeric ID from a string key (LocalNotifications requires a number id)
+function numericId(key: string): number {
+  let h = 0
+  for (let i = 0; i < key.length; i++) {
+    h = (Math.imul(31, h) + key.charCodeAt(i)) | 0
+  }
+  return Math.abs(h) % 2_000_000_000
+}
+
+// ── Platform-aware fire function ──────────────────────────────────────────────
+
+async function fire(title: string, body: string, key: string) {
+  // Dynamic import keeps Capacitor out of the SSR/web bundle path entirely
+  try {
+    const { Capacitor } = await import('@capacitor/core')
+    if (Capacitor.isNativePlatform()) {
+      const { LocalNotifications } = await import('@capacitor/local-notifications')
+      const perm = await LocalNotifications.checkPermissions()
+      if (perm.display !== 'granted') {
+        const req = await LocalNotifications.requestPermissions()
+        if (req.display !== 'granted') return
+      }
+      await LocalNotifications.schedule({
+        notifications: [{
+          id: numericId(key),
+          title,
+          body,
+          schedule: { at: new Date(Date.now() + 500) }, // fire immediately
+        }],
+      })
+      return
+    }
+  } catch { /* not in Capacitor context — fall through to web */ }
+
   if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return
   new Notification(title, { body, icon: '/favicon.ico' })
 }
@@ -74,22 +107,50 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   )
 
   const requestPermission = useCallback(async () => {
+    // Native: request via LocalNotifications plugin
+    try {
+      const { Capacitor } = await import('@capacitor/core')
+      if (Capacitor.isNativePlatform()) {
+        const { LocalNotifications } = await import('@capacitor/local-notifications')
+        const result = await LocalNotifications.requestPermissions()
+        setPermission(result.display === 'granted' ? 'granted' : 'denied')
+        return
+      }
+    } catch { /* not native */ }
+
+    // Web: use browser Notification API
     if (typeof Notification === 'undefined') return
     const result = await Notification.requestPermission()
     setPermission(result)
   }, [])
 
-  // Auto-request on first load if not yet decided
+  // Auto-request on first load
   useEffect(() => {
-    if (typeof Notification === 'undefined') return
-    if (Notification.permission === 'default') {
-      Notification.requestPermission().then(setPermission)
+    const init = async () => {
+      try {
+        const { Capacitor } = await import('@capacitor/core')
+        if (Capacitor.isNativePlatform()) {
+          const { LocalNotifications } = await import('@capacitor/local-notifications')
+          const perm = await LocalNotifications.checkPermissions()
+          if (perm.display === 'prompt') {
+            const req = await LocalNotifications.requestPermissions()
+            setPermission(req.display === 'granted' ? 'granted' : 'denied')
+          } else {
+            setPermission(perm.display === 'granted' ? 'granted' : 'denied')
+          }
+          return
+        }
+      } catch { /* not native */ }
+
+      if (typeof Notification === 'undefined') return
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then(setPermission)
+      }
     }
+    init()
   }, [])
 
   const checkNotifications = useCallback(() => {
-    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return
-
     const today = todayYMD()
     pruneOldKeys(today)
 
@@ -100,13 +161,13 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       if (task.dueDate < today) {
         const key = `task_overdue_${task.id}_${today}`
         if (!hasFired(key)) {
-          fire('⚠️ Overdue task', `"${task.title}" was due on ${task.dueDate}`)
+          fire('Overdue task', `"${task.title}" was due on ${task.dueDate}`, key)
           markFired(key)
         }
       } else if (task.dueDate === today) {
         const key = `task_today_${task.id}_${today}`
         if (!hasFired(key)) {
-          fire('📋 Due today', `"${task.title}" is due today`)
+          fire('Due today', `"${task.title}" is due today`, key)
           markFired(key)
         }
       }
@@ -116,15 +177,13 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
     for (const event of events) {
       if (event.eventDate !== today) continue
 
-      // Once-per-day notification for today's events
       const keyToday = `event_today_${event.id}_${today}`
       if (!hasFired(keyToday)) {
         const suffix = event.startTime ? ` at ${formatTime(event.startTime)}` : ''
-        fire('📅 Event today', `"${event.title}"${suffix}`)
+        fire('Event today', `"${event.title}"${suffix}`, keyToday)
         markFired(keyToday)
       }
 
-      // "Starting soon" — within 30 minutes
       if (event.startTime) {
         const mins = minutesUntil(event.startTime)
         if (mins >= 0 && mins <= 30) {
@@ -133,7 +192,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
             const msg = mins === 0
               ? `"${event.title}" is starting now`
               : `"${event.title}" starts in ${mins} minute${mins === 1 ? '' : 's'}`
-            fire('🔔 Starting soon', msg)
+            fire('Starting soon', msg, keySoon)
             markFired(keySoon)
           }
         }

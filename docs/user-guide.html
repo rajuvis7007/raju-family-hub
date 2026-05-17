@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raju Family Dashboard — User Guide</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --indigo:       #4F46E5;
+      --indigo-light: #EEF2FF;
+      --indigo-mid:   #818CF8;
+      --raju:         #4F46E5;   /* indigo */
+      --joshna:       #E11D48;   /* rose   */
+      --amrita:       #059669;   /* emerald */
+      --shreya:       #D97706;   /* amber  */
+      --gray-50:      #F9FAFB;
+      --gray-100:     #F3F4F6;
+      --gray-200:     #E5E7EB;
+      --gray-400:     #9CA3AF;
+      --gray-600:     #4B5563;
+      --gray-700:     #374151;
+      --gray-900:     #111827;
+      --text:         #1F2937;
+      --radius:       8px;
+      --font:         -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                      Helvetica, Arial, sans-serif;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      font-family: var(--font);
+      color: var(--text);
+      background: #fff;
+      line-height: 1.6;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* ── Layout containers ── */
+    .page-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ─────────────────────────────────────────
+       COVER PAGE
+    ───────────────────────────────────────── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      background: linear-gradient(160deg, var(--indigo) 0%, #3730A3 100%);
+      color: #fff;
+      page-break-after: always;
+    }
+
+    .cover-logo {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 2rem;
+      font-size: 2.5rem;
+    }
+
+    .cover h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .cover-subtitle {
+      font-size: 1.25rem;
+      font-weight: 400;
+      opacity: 0.85;
+      margin-bottom: 2.5rem;
+    }
+
+    .cover-members {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+
+    .cover-member {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+
+    .dot-raju    { background: #818CF8; }
+    .dot-joshna  { background: #FB7185; }
+    .dot-amrita  { background: #34D399; }
+    .dot-shreya  { background: #FCD34D; }
+
+    .cover-meta {
+      opacity: 0.6;
+      font-size: 0.85rem;
+    }
+
+    /* ─────────────────────────────────────────
+       TABLE OF CONTENTS
+    ───────────────────────────────────────── */
+    .toc-section {
+      padding: 3rem 0 2rem;
+      page-break-after: always;
+    }
+
+    .toc-section h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--indigo);
+      margin-bottom: 1.5rem;
+    }
+
+    .toc-list {
+      list-style: none;
+      border-left: 3px solid var(--indigo-light);
+      padding-left: 1.25rem;
+    }
+
+    .toc-list li {
+      margin-bottom: 0.5rem;
+    }
+
+    .toc-list a {
+      text-decoration: none;
+      color: var(--gray-700);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .toc-list a:hover { color: var(--indigo); }
+
+    .toc-num {
+      font-weight: 700;
+      color: var(--indigo);
+      min-width: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .toc-sub {
+      list-style: none;
+      padding-left: 1.75rem;
+      margin-top: 0.25rem;
+    }
+
+    .toc-sub li { margin-bottom: 0.2rem; }
+    .toc-sub a  { font-size: 0.9rem; color: var(--gray-600); }
+
+    /* ─────────────────────────────────────────
+       SECTION PAGES
+    ───────────────────────────────────────── */
+    .section {
+      padding: 3.5rem 0 2rem;
+      page-break-before: always;
+    }
+
+    .section + .section {
+      border-top: none;
+    }
+
+    /* Section header banner */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--indigo-light);
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--indigo);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      color: #fff;
+    }
+
+    .section-num {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--indigo);
+      margin-bottom: 0.1rem;
+    }
+
+    .section h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--gray-900);
+    }
+
+    /* Sub-sections */
+    .subsection {
+      margin-top: 2rem;
+    }
+
+    .subsection h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .subsection h3::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 1.1rem;
+      background: var(--indigo);
+      border-radius: 2px;
+    }
+
+    /* Paragraphs */
+    p { margin-bottom: 0.75rem; color: var(--gray-700); }
+
+    /* Ordered / unordered lists */
+    ol, ul {
+      padding-left: 1.4rem;
+      margin-bottom: 0.75rem;
+      color: var(--gray-700);
+    }
+
+    ol li, ul li { margin-bottom: 0.35rem; }
+
+    /* Step list */
+    .steps {
+      list-style: none;
+      padding: 0;
+      counter-reset: steps;
+    }
+
+    .steps li {
+      counter-increment: steps;
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.65rem;
+      align-items: flex-start;
+    }
+
+    .steps li::before {
+      content: counter(steps);
+      background: var(--indigo);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.15rem;
+    }
+
+    /* ─────────────────────────────────────────
+       CALLOUT BOXES
+    ───────────────────────────────────────── */
+    .callout {
+      border-radius: var(--radius);
+      padding: 0.9rem 1.1rem;
+      margin: 1.25rem 0;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      font-size: 0.92rem;
+    }
+
+    .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.05rem; }
+    .callout strong { display: block; font-weight: 700; margin-bottom: 0.2rem; }
+
+    .callout-tip {
+      background: var(--indigo-light);
+      border-left: 4px solid var(--indigo);
+      color: #312E81;
+    }
+
+    .callout-note {
+      background: #F0FDF4;
+      border-left: 4px solid #059669;
+      color: #064E3B;
+    }
+
+    .callout-warn {
+      background: #FFFBEB;
+      border-left: 4px solid #D97706;
+      color: #78350F;
+    }
+
+    /* ─────────────────────────────────────────
+       INLINE TAGS / BADGES
+    ───────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+
+    .badge-overdue  { background: #FEE2E2; color: #991B1B; }
+    .badge-today    { background: #FEF3C7; color: #92400E; font-weight: 700; }
+    .badge-tomorrow { background: #FEF3C7; color: #92400E; }
+    .badge-future   { background: var(--gray-100); color: var(--gray-600); }
+
+    kbd {
+      display: inline-block;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 0.1rem 0.45rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--gray-700);
+      vertical-align: middle;
+    }
+
+    /* ─────────────────────────────────────────
+       MEMBER COLOR TABLE
+    ───────────────────────────────────────── */
+    .member-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.92rem;
+    }
+
+    .member-table th {
+      background: var(--indigo);
+      color: #fff;
+      font-weight: 600;
+      padding: 0.55rem 0.9rem;
+      text-align: left;
+    }
+
+    .member-table td {
+      padding: 0.55rem 0.9rem;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: middle;
+    }
+
+    .member-table tr:nth-child(even) td { background: var(--gray-50); }
+
+    .color-swatch {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    /* ─────────────────────────────────────────
+       QUICK-REFERENCE CARD
+    ───────────────────────────────────────── */
+    .quick-ref {
+      page-break-before: always;
+      padding: 3rem 0 2rem;
+    }
+
+    .quick-ref h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--indigo);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .qr-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .qr-card {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .qr-card-header {
+      background: var(--indigo);
+      color: #fff;
+      padding: 0.55rem 0.9rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .qr-card-body {
+      padding: 0.75rem 0.9rem;
+    }
+
+    .qr-card-body ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--gray-700);
+    }
+
+    .qr-card-body ul li {
+      padding: 0.25rem 0;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+    }
+
+    .qr-card-body ul li:last-child { border-bottom: none; }
+
+    .qr-card-body ul li::before {
+      content: '→';
+      color: var(--indigo-mid);
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+
+    .qr-colors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      padding: 0.75rem 0.9rem;
+    }
+
+    .qr-color-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.88rem;
+    }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 2.5rem 0 3rem;
+      font-size: 0.82rem;
+      color: var(--gray-400);
+      border-top: 1px solid var(--gray-200);
+      margin-top: 2rem;
+    }
+
+    /* ─────────────────────────────────────────
+       PRINT STYLES
+    ───────────────────────────────────────── */
+    @media print {
+      @page {
+        size: A4;
+        margin: 1.8cm 1.8cm 2cm;
+      }
+
+      @page :first {
+        margin: 0;
+      }
+
+      html { font-size: 13px; }
+
+      .cover {
+        min-height: 100vh;
+        margin: 0;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .section {
+        page-break-before: always;
+        break-before: page;
+      }
+
+      .subsection { page-break-inside: avoid; break-inside: avoid; }
+      .callout    { page-break-inside: avoid; break-inside: avoid; }
+      .qr-card    { page-break-inside: avoid; break-inside: avoid; }
+      .qr-grid    { page-break-inside: avoid; break-inside: avoid; }
+
+      a { color: inherit; text-decoration: none; }
+
+      .toc-list a::after { content: ''; }
+    }
+
+    /* ─────────────────────────────────────────
+       SCREEN-ONLY HELPERS
+    ───────────────────────────────────────── */
+    @media screen {
+      .section {
+        border-radius: var(--radius);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     COVER PAGE
+═══════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-logo">&#127968;</div>
+  <h1>Raju Family Dashboard</h1>
+  <p class="cover-subtitle">User Guide &amp; Reference</p>
+
+  <div class="cover-members">
+    <div class="cover-member"><span class="dot dot-raju"></span> Raju</div>
+    <div class="cover-member"><span class="dot dot-joshna"></span> Joshna</div>
+    <div class="cover-member"><span class="dot dot-amrita"></span> Amrita</div>
+    <div class="cover-member"><span class="dot dot-shreya"></span> Shreya</div>
+  </div>
+
+  <p class="cover-meta">Private family hub &nbsp;·&nbsp; Desktop &amp; Mobile &nbsp;·&nbsp; May 2026</p>
+</div>
+
+<!-- ══════════════════════════════════════
+     TABLE OF CONTENTS
+═══════════════════════════════════════ -->
+<div class="page-wrap">
+<section class="toc-section">
+  <h2>Contents</h2>
+  <ol class="toc-list">
+    <li>
+      <a href="#getting-started"><span class="toc-num">1</span> Getting Started</a>
+    </li>
+    <li>
+      <a href="#dashboard"><span class="toc-num">2</span> Dashboard</a>
+      <ul class="toc-sub">
+        <li><a href="#dashboard-widgets">Widgets at a glance</a></li>
+        <li><a href="#dashboard-filter">Filtering by member</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#photos"><span class="toc-num">3</span> Photos</a>
+      <ul class="toc-sub">
+        <li><a href="#photos-albums">Creating an album</a></li>
+        <li><a href="#photos-upload">Uploading photos &amp; videos</a></li>
+        <li><a href="#photos-browse">Browsing &amp; viewing</a></li>
+        <li><a href="#photos-delete">Deleting a photo</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#tasks"><span class="toc-num">4</span> Tasks</a>
+      <ul class="toc-sub">
+        <li><a href="#tasks-create">Creating a task</a></li>
+        <li><a href="#tasks-manage">Managing tasks</a></li>
+        <li><a href="#tasks-filter">Filtering &amp; due dates</a></li>
+        <li><a href="#tasks-attachments">File attachments</a></li>
+        <li><a href="#tasks-completed">Completed tasks</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#calendar"><span class="toc-num">5</span> Calendar</a>
+      <ul class="toc-sub">
+        <li><a href="#calendar-navigate">Navigating months</a></li>
+        <li><a href="#calendar-events">Adding events</a></li>
+        <li><a href="#calendar-day">Day detail panel</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#notifications"><span class="toc-num">6</span> Notifications</a>
+    </li>
+    <li>
+      <a href="#quick-ref">Quick-Reference Card</a>
+    </li>
+  </ol>
+</section>
+
+<!-- ══════════════════════════════════════
+     1. GETTING STARTED
+═══════════════════════════════════════ -->
+<section class="section" id="getting-started">
+  <div class="section-header">
+    <div class="section-icon">&#128640;</div>
+    <div>
+      <div class="section-num">Section 1</div>
+      <h2>Getting Started</h2>
+    </div>
+  </div>
+
+  <p>
+    The Raju Family Dashboard is a private web app shared by four family
+    members: <strong>Raju, Joshna, Amrita,</strong> and <strong>Shreya</strong>.
+    Everything — photos, tasks, events, and notifications — is organized
+    around these four people, each identified by a consistent color.
+  </p>
+
+  <table class="member-table">
+    <thead>
+      <tr>
+        <th>Member</th>
+        <th>Color</th>
+        <th>Where you'll see it</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Raju</strong></td>
+        <td><span class="color-swatch" style="background:#4F46E5;"></span> Indigo</td>
+        <td>Task dots, calendar chips, filter buttons</td>
+      </tr>
+      <tr>
+        <td><strong>Joshna</strong></td>
+        <td><span class="color-swatch" style="background:#E11D48;"></span> Rose / Pink</td>
+        <td>Task dots, calendar chips, filter buttons</td>
+      </tr>
+      <tr>
+        <td><strong>Amrita</strong></td>
+        <td><span class="color-swatch" style="background:#059669;"></span> Emerald / Green</td>
+        <td>Task dots, calendar chips, filter buttons</td>
+      </tr>
+      <tr>
+        <td><strong>Shreya</strong></td>
+        <td><span class="color-swatch" style="background:#D97706;"></span> Amber / Orange</td>
+        <td>Task dots, calendar chips, filter buttons</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="subsection">
+    <h3>Navigation</h3>
+    <p>
+      The app has four main tabs accessible from the sidebar (desktop) or
+      bottom navigation bar (mobile):
+    </p>
+    <ul>
+      <li><strong>Dashboard</strong> — your family home screen</li>
+      <li><strong>Photos</strong> — photo and video albums</li>
+      <li><strong>Tasks</strong> — family to-do list</li>
+      <li><strong>Calendar</strong> — monthly event calendar</li>
+    </ul>
+    <p>
+      The <strong>bell icon</strong> in the top-right corner (or sidebar
+      bottom on desktop) controls browser notifications.
+    </p>
+  </div>
+
+  <div class="callout callout-tip">
+    <span class="callout-icon">&#128161;</span>
+    <div>
+      <strong>Works on any device</strong>
+      The app runs in any modern desktop or mobile browser. A native
+      Android/iOS app is coming soon.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     2. DASHBOARD
+═══════════════════════════════════════ -->
+<section class="section" id="dashboard">
+  <div class="section-header">
+    <div class="section-icon">&#127968;</div>
+    <div>
+      <div class="section-num">Section 2</div>
+      <h2>Dashboard</h2>
+    </div>
+  </div>
+
+  <p>
+    The Dashboard is the first thing you see when you open the app. It gives
+    you a quick snapshot of what's happening today and what's coming up
+    for the family.
+  </p>
+
+  <div class="subsection" id="dashboard-widgets">
+    <h3>Widgets at a glance</h3>
+    <ul>
+      <li>
+        <strong>Today's date</strong> — displayed prominently at the top of
+        the page.
+      </li>
+      <li>
+        <strong>Family member cards</strong> — one card for each of the four
+        members. Click any card to filter the widgets below to show only
+        that person's tasks and events.
+      </li>
+      <li>
+        <strong>Tasks widget</strong> — shows all currently open tasks with
+        their due dates. Each task row has a colored dot indicating who it's
+        assigned to. Click any task to jump to the Tasks tab.
+      </li>
+      <li>
+        <strong>Coming Up widget</strong> — lists upcoming calendar events.
+        Each event shows the date and a colored dot for the member who
+        created it. Click any event to jump to the Calendar tab.
+      </li>
+    </ul>
+  </div>
+
+  <div class="subsection" id="dashboard-filter">
+    <h3>Filtering by member</h3>
+    <ol class="steps">
+      <li>Click a family member card (e.g., "Amrita") on the Dashboard.</li>
+      <li>Both the Tasks widget and the Coming Up widget instantly filter to
+          show only Amrita's items.</li>
+      <li>Click the same card again — or click "All" — to return to the
+          full family view.</li>
+    </ol>
+  </div>
+
+  <div class="callout callout-note">
+    <span class="callout-icon">&#128203;</span>
+    <div>
+      <strong>Live data</strong>
+      The Dashboard reflects the current state of your tasks and calendar
+      in real time. Any task you complete or event you add will appear
+      here immediately.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     3. PHOTOS
+═══════════════════════════════════════ -->
+<section class="section" id="photos">
+  <div class="section-header">
+    <div class="section-icon">&#128247;</div>
+    <div>
+      <div class="section-num">Section 3</div>
+      <h2>Photos</h2>
+    </div>
+  </div>
+
+  <p>
+    The Photos tab is the family's shared photo and video library. Media is
+    organized into <strong>albums</strong> — named collections that can
+    represent events, trips, or any theme you choose.
+  </p>
+
+  <!-- 3a. Creating an album -->
+  <div class="subsection" id="photos-albums">
+    <h3>Creating an album</h3>
+    <ol class="steps">
+      <li>Go to the <strong>Photos</strong> tab.</li>
+      <li>Click the <strong>New Album</strong> button (top right).</li>
+      <li>Enter an album <strong>name</strong> (required).</li>
+      <li>Optionally set an <strong>event date</strong> for the album.</li>
+      <li>Choose <strong>who created it</strong> from the member list.</li>
+      <li>Click <strong>Create</strong>. The empty album appears in the grid.</li>
+    </ol>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#128161;</span>
+      <div>
+        <strong>Create first, upload later</strong>
+        You can create an album now and add photos to it at any time using
+        the "Add Photos" button inside the album.
+      </div>
+    </div>
+  </div>
+
+  <!-- 3b. Uploading -->
+  <div class="subsection" id="photos-upload">
+    <h3>Uploading photos &amp; videos</h3>
+    <p>
+      The upload flow is a guided multi-step wizard. You can start it two
+      ways: the <strong>Upload Photos</strong> button on the main Photos page,
+      or the <strong>Add Photos</strong> button inside an open album.
+    </p>
+
+    <p><strong>Supported file types &amp; limits:</strong></p>
+    <ul>
+      <li>Images: JPG, PNG, HEIC</li>
+      <li>Videos: MP4, MOV</li>
+      <li>Maximum file size: <strong>200 MB</strong> per file</li>
+    </ul>
+
+    <p><strong>Upload wizard steps:</strong></p>
+    <ol class="steps">
+      <li>
+        <strong>Pick files</strong> — drag and drop files onto the upload
+        zone, or click it to open your device's file picker. You can select
+        multiple files at once.
+      </li>
+      <li>
+        <strong>Choose or create an album</strong> — select an existing album
+        from the list, or type a new name to create one on the spot.
+      </li>
+      <li>
+        <strong>Upload</strong> — each file shows its own progress bar as it
+        uploads. You can see how many files remain.
+      </li>
+      <li>
+        <strong>Done</strong> — a confirmation screen appears. Click "View
+        Album" to browse the newly uploaded photos.
+      </li>
+    </ol>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">&#9888;&#65039;</span>
+      <div>
+        <strong>File size limit</strong>
+        Files over 200 MB will be rejected before uploading. For very long
+        videos, consider trimming them beforehand.
+      </div>
+    </div>
+  </div>
+
+  <!-- 3c. Browsing -->
+  <div class="subsection" id="photos-browse">
+    <h3>Browsing &amp; viewing</h3>
+    <ol class="steps">
+      <li>
+        On the Photos main page, click any <strong>album card</strong> to open
+        it. Photos and videos appear in a grid.
+      </li>
+      <li>
+        Click any photo or video thumbnail to open the
+        <strong>full-screen lightbox</strong>.
+      </li>
+      <li>
+        Inside the lightbox:
+        <ul>
+          <li>Press <kbd>→</kbd> or <kbd>←</kbd> arrow keys to navigate
+              between items.</li>
+          <li>Press <kbd>Escape</kbd> to close and return to the album.</li>
+        </ul>
+      </li>
+    </ol>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#128161;</span>
+      <div>
+        <strong>Keyboard navigation</strong>
+        Once the lightbox is open, you can swipe left/right on mobile or
+        use the arrow keys on a desktop to flip through every photo in the
+        album without closing the lightbox.
+      </div>
+    </div>
+  </div>
+
+  <!-- 3d. Deleting -->
+  <div class="subsection" id="photos-delete">
+    <h3>Deleting a photo</h3>
+    <ol class="steps">
+      <li>Open an album and hover your cursor over the photo you want to
+          remove.</li>
+      <li>A <strong>&times;</strong> (delete) button appears in the corner
+          of the photo.</li>
+      <li>Click the <strong>&times;</strong> button. The photo is immediately
+          removed from the album.</li>
+    </ol>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">&#9888;&#65039;</span>
+      <div>
+        <strong>Deletion is permanent</strong>
+        Deleted photos cannot be recovered. Double-check before
+        clicking the &times; button.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     4. TASKS
+═══════════════════════════════════════ -->
+<section class="section" id="tasks">
+  <div class="section-header">
+    <div class="section-icon">&#9989;</div>
+    <div>
+      <div class="section-num">Section 4</div>
+      <h2>Tasks</h2>
+    </div>
+  </div>
+
+  <p>
+    The Tasks tab is the family's shared to-do list. Tasks are assigned to
+    individual members, can have due dates, and support file attachments.
+  </p>
+
+  <!-- 4a. Creating a task -->
+  <div class="subsection" id="tasks-create">
+    <h3>Creating a task</h3>
+    <ol class="steps">
+      <li>Go to the <strong>Tasks</strong> tab.</li>
+      <li>Click the <strong>New Task</strong> button.</li>
+      <li>Enter a <strong>title</strong> for the task (required).</li>
+      <li>Pick a family member from the <strong>Assign to</strong> list.</li>
+      <li>Optionally set a <strong>due date</strong>.</li>
+      <li>
+        Optionally attach files (see
+        <a href="#tasks-attachments">File attachments</a> below).
+      </li>
+      <li>Click <strong>Save</strong>. The task appears in the Open section.</li>
+    </ol>
+  </div>
+
+  <!-- 4b. Managing tasks -->
+  <div class="subsection" id="tasks-manage">
+    <h3>Managing tasks</h3>
+
+    <p><strong>Mark a task complete / incomplete:</strong></p>
+    <ol class="steps">
+      <li>Click the <strong>circle checkbox</strong> to the left of any task.</li>
+      <li>The task moves from the <em>Open</em> section to the
+          <em>Completed</em> section (or back again).</li>
+    </ol>
+
+    <p><strong>Delete a task:</strong></p>
+    <ol class="steps">
+      <li>Hover over the task row. A row of action icons appears on the right.</li>
+      <li>Click the <strong>trash icon</strong> to permanently delete the task.</li>
+    </ol>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">&#9888;&#65039;</span>
+      <div>
+        <strong>No undo for deletion</strong>
+        Deleted tasks and their attachments cannot be restored.
+      </div>
+    </div>
+  </div>
+
+  <!-- 4c. Filtering & due dates -->
+  <div class="subsection" id="tasks-filter">
+    <h3>Filtering &amp; due-date badges</h3>
+
+    <p><strong>Filter bar</strong> — at the top of the Tasks tab:</p>
+    <ul>
+      <li>Click <strong>All</strong> to see every task.</li>
+      <li>Click a member's name to see only tasks assigned to that person.</li>
+    </ul>
+
+    <p><strong>Due-date badges</strong> appear on each task row:</p>
+
+    <table class="member-table">
+      <thead>
+        <tr><th>Badge</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-overdue">Overdue</span></td>
+          <td>Due date has passed — needs immediate attention.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-today">Today</span></td>
+          <td>Due today — shown in bold amber.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-tomorrow">Tomorrow</span></td>
+          <td>Due tomorrow — shown in amber.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-future">May 25</span></td>
+          <td>Future date — shown in gray.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4d. Attachments -->
+  <div class="subsection" id="tasks-attachments">
+    <h3>File attachments</h3>
+    <p>Tasks can carry supporting files — receipts, voice notes, photos, documents.</p>
+
+    <p><strong>Supported types &amp; limits:</strong></p>
+    <ul>
+      <li>Images &amp; videos: up to <strong>200 MB</strong> per file</li>
+      <li>Audio &amp; PDF: up to <strong>20 MB</strong> per file</li>
+    </ul>
+
+    <p><strong>Attach files when creating a task:</strong></p>
+    <ol class="steps">
+      <li>Open the New Task dialog.</li>
+      <li>Click the attachment area and pick one or more files.</li>
+      <li>Save the task — files are uploaded along with it.</li>
+    </ol>
+
+    <p><strong>Attach files to an existing task:</strong></p>
+    <ol class="steps">
+      <li>Hover over the task row to reveal the action icons.</li>
+      <li>Click the <strong>paperclip icon</strong>.</li>
+      <li>Pick files from your device. They are added to the task immediately.</li>
+    </ol>
+  </div>
+
+  <!-- 4e. Completed tasks -->
+  <div class="subsection" id="tasks-completed">
+    <h3>Completed tasks</h3>
+    <p>
+      Completed tasks are shown below the Open section. To keep the page
+      fast, only the 20 most recently completed tasks are loaded at first.
+    </p>
+    <ul>
+      <li>Scroll to the bottom of the Completed section.</li>
+      <li>Click <strong>"Load more completed tasks"</strong> to fetch the
+          next batch of 20.</li>
+      <li>Repeat until all completed tasks are visible.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     5. CALENDAR
+═══════════════════════════════════════ -->
+<section class="section" id="calendar">
+  <div class="section-header">
+    <div class="section-icon">&#128197;</div>
+    <div>
+      <div class="section-num">Section 5</div>
+      <h2>Calendar</h2>
+    </div>
+  </div>
+
+  <p>
+    The Calendar tab shows a full monthly view of family events and task
+    due dates. Day cells are color-coded so you can see at a glance what's
+    happening and who's involved.
+  </p>
+
+  <!-- 5a. Navigating -->
+  <div class="subsection" id="calendar-navigate">
+    <h3>Navigating months</h3>
+    <ul>
+      <li>Click the <strong>&#8592;</strong> (left arrow) to go to the
+          previous month.</li>
+      <li>Click the <strong>&#8594;</strong> (right arrow) to go to the
+          next month.</li>
+      <li>Click the <strong>Today</strong> button at any time to jump back
+          to the current month.</li>
+    </ul>
+  </div>
+
+  <!-- 5b. Reading the calendar grid -->
+  <div class="subsection">
+    <h3>Reading the calendar grid</h3>
+    <p>Inside each day cell, you'll see two types of chips:</p>
+    <ul>
+      <li>
+        <strong>Filled color chip</strong> — a calendar event. The color
+        matches the member who created it.
+      </li>
+      <li>
+        <strong>Light chip with a dot</strong> — a task due on that day.
+        The dot color matches the task's assignee.
+      </li>
+    </ul>
+    <p>
+      A <strong>member color legend</strong> is displayed below the calendar
+      grid for quick reference.
+    </p>
+  </div>
+
+  <!-- 5c. Adding events -->
+  <div class="subsection" id="calendar-events">
+    <h3>Adding an event</h3>
+    <p>You can add an event two ways:</p>
+    <ul>
+      <li>Click the <strong>Add Event</strong> button in the top-right area
+          of the Calendar tab.</li>
+      <li>Click a specific day cell to open the day panel, then click
+          <strong>Add Event</strong> inside the panel (the date will be
+          pre-filled).</li>
+    </ul>
+
+    <p><strong>Event form fields:</strong></p>
+    <ol class="steps">
+      <li>Enter the event <strong>title</strong> (required).</li>
+      <li>Confirm or change the <strong>date</strong>.</li>
+      <li>Optionally set a <strong>start time</strong> and <strong>end
+          time</strong>.</li>
+      <li>Optionally add <strong>notes</strong> or a description.</li>
+      <li>Pick the <strong>family member</strong> who is creating the
+          event — this determines the chip color on the calendar.</li>
+      <li>Click <strong>Save</strong>. The event chip appears on the
+          correct day.</li>
+    </ol>
+  </div>
+
+  <!-- 5d. Day detail panel -->
+  <div class="subsection" id="calendar-day">
+    <h3>Day detail panel</h3>
+    <ol class="steps">
+      <li>Click any day in the calendar grid.</li>
+      <li>A detail panel opens on the right (or as a modal on mobile),
+          listing:
+          <ul>
+            <li><strong>Events</strong> — each with a delete button
+                (trash icon) to remove it.</li>
+            <li><strong>Tasks due</strong> — each with a checkbox to
+                mark it complete or incomplete without leaving the
+                Calendar.</li>
+          </ul>
+      </li>
+      <li>Click outside the panel (or press <kbd>Escape</kbd>) to close it.</li>
+    </ol>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#128161;</span>
+      <div>
+        <strong>Quick task toggle</strong>
+        You can mark tasks done directly from the day panel in the
+        Calendar — no need to switch to the Tasks tab.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     6. NOTIFICATIONS
+═══════════════════════════════════════ -->
+<section class="section" id="notifications">
+  <div class="section-header">
+    <div class="section-icon">&#128276;</div>
+    <div>
+      <div class="section-num">Section 6</div>
+      <h2>Notifications</h2>
+    </div>
+  </div>
+
+  <p>
+    The app can send OS-level browser notifications to remind you about
+    important items, even when the app is in a background tab.
+  </p>
+
+  <!-- What triggers a notification -->
+  <div class="subsection">
+    <h3>What triggers a notification</h3>
+    <ul>
+      <li>Overdue tasks (past their due date)</li>
+      <li>Tasks due today</li>
+      <li>Events happening today</li>
+      <li>Events starting within 30 minutes</li>
+    </ul>
+    <div class="callout callout-note">
+      <span class="callout-icon">&#128203;</span>
+      <div>
+        <strong>No spam</strong>
+        Each item fires a notification at most <em>once per day</em>.
+        Reloading the page will not trigger duplicate notifications.
+      </div>
+    </div>
+  </div>
+
+  <!-- The bell icon -->
+  <div class="subsection">
+    <h3>The bell icon — states</h3>
+    <table class="member-table">
+      <thead>
+        <tr><th>Bell appearance</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Indigo (filled)</td>
+          <td>Notifications are enabled. You will receive alerts.</td>
+        </tr>
+        <tr>
+          <td>Outline (grey)</td>
+          <td>Notifications not yet enabled. Click to enable.</td>
+        </tr>
+        <tr>
+          <td>Strikethrough</td>
+          <td>Notifications are blocked by the browser.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      A <strong>red badge</strong> on the bell shows the count of urgent
+      items: overdue tasks + today's events.
+    </p>
+  </div>
+
+  <!-- Enabling notifications -->
+  <div class="subsection">
+    <h3>Enabling notifications</h3>
+    <ol class="steps">
+      <li>Click the <strong>bell icon</strong> in the top-right corner
+          (or sidebar bottom on desktop).</li>
+      <li>Your browser will ask for permission. Click <strong>Allow</strong>.</li>
+      <li>The bell turns indigo — notifications are now active.</li>
+    </ol>
+  </div>
+
+  <!-- Re-enabling if blocked -->
+  <div class="subsection">
+    <h3>Re-enabling if blocked</h3>
+    <p>
+      If you previously clicked "Block" in the browser permission prompt,
+      the bell shows a strikethrough. To re-enable:
+    </p>
+    <ol class="steps">
+      <li>Open your browser's <strong>Settings</strong>.</li>
+      <li>Go to <strong>Privacy &amp; Security → Notifications</strong>
+          (exact path varies by browser).</li>
+      <li>Find the dashboard site in the list and change its permission
+          to <strong>Allow</strong>.</li>
+      <li>Reload the app — the bell should now be indigo.</li>
+    </ol>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">&#9888;&#65039;</span>
+      <div>
+        <strong>Browser permission required</strong>
+        Notifications only work in modern desktop browsers that support
+        the Web Notifications API. Safari on iOS may have limited support.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     QUICK-REFERENCE CARD
+═══════════════════════════════════════ -->
+<section class="quick-ref" id="quick-ref">
+  <h2>&#9889; Quick-Reference Card</h2>
+
+  <div class="qr-grid">
+
+    <!-- Dashboard -->
+    <div class="qr-card">
+      <div class="qr-card-header">&#127968; Dashboard</div>
+      <div class="qr-card-body">
+        <ul>
+          <li>Click a member card to filter widgets to that person</li>
+          <li>Tasks widget shows open tasks with due dates</li>
+          <li>Coming Up widget links to Calendar events</li>
+          <li>Click "All" (or the active card) to reset the filter</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Photos -->
+    <div class="qr-card">
+      <div class="qr-card-header">&#128247; Photos</div>
+      <div class="qr-card-body">
+        <ul>
+          <li>New Album → name, optional date, creator</li>
+          <li>Upload Photos → pick files → choose album → progress → done</li>
+          <li>Click album to open; click photo to open lightbox</li>
+          <li>&#8592; &#8594; keys to navigate; Esc to close lightbox</li>
+          <li>Hover photo → &#215; button to delete</li>
+          <li>Inside album → "Add Photos" to add more files</li>
+          <li>Max file size: 200 MB</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tasks -->
+    <div class="qr-card">
+      <div class="qr-card-header">&#9989; Tasks</div>
+      <div class="qr-card-body">
+        <ul>
+          <li>New Task → title, assignee, optional due date &amp; attachments</li>
+          <li>Click circle checkbox to mark done / undone</li>
+          <li>Hover row → paperclip to attach files; trash to delete</li>
+          <li>Filter bar: All / Raju / Joshna / Amrita / Shreya</li>
+          <li>Badges: Overdue (red), Today (amber bold), Tomorrow (amber), future (gray)</li>
+          <li>Completed section loads 20 at a time — "Load more" link</li>
+          <li>Attachments: images &amp; video 200 MB; audio &amp; PDF 20 MB</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="qr-card">
+      <div class="qr-card-header">&#128197; Calendar</div>
+      <div class="qr-card-body">
+        <ul>
+          <li>&#8592; &#8594; arrows to change month; Today button to return</li>
+          <li>Filled chip = event; light chip with dot = task due date</li>
+          <li>Click day to open detail panel (events + tasks)</li>
+          <li>Delete event icon in the panel; checkbox toggles task done</li>
+          <li>Add Event: title (req.), date, start/end time, notes, member</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="qr-card">
+      <div class="qr-card-header">&#128276; Notifications</div>
+      <div class="qr-card-body">
+        <ul>
+          <li>Click bell → Allow in browser prompt to enable</li>
+          <li>Alerts: overdue tasks, tasks due today, events today, events in 30 min</li>
+          <li>Once per item per day — no repeated alerts on reload</li>
+          <li>Red badge = count of urgent items</li>
+          <li>If blocked: browser Settings → Notifications → Allow site</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Member colors -->
+    <div class="qr-card">
+      <div class="qr-card-header">&#127912; Member Colors</div>
+      <div class="qr-card-body">
+        <div class="qr-colors">
+          <div class="qr-color-chip">
+            <span class="color-swatch" style="background:#4F46E5;"></span>
+            <strong>Raju</strong> — Indigo
+          </div>
+          <div class="qr-color-chip">
+            <span class="color-swatch" style="background:#E11D48;"></span>
+            <strong>Joshna</strong> — Rose
+          </div>
+          <div class="qr-color-chip">
+            <span class="color-swatch" style="background:#059669;"></span>
+            <strong>Amrita</strong> — Emerald
+          </div>
+          <div class="qr-color-chip">
+            <span class="color-swatch" style="background:#D97706;"></span>
+            <strong>Shreya</strong> — Amber
+          </div>
+        </div>
+        <div class="qr-card-body" style="padding-top:0;">
+          <ul>
+            <li>Colors are consistent across all tabs</li>
+            <li>Legend shown below the Calendar grid</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.qr-grid -->
+</section>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════ -->
+<footer>
+  Raju Family Dashboard &nbsp;·&nbsp; User Guide &nbsp;·&nbsp; May 2026<br/>
+  Private &amp; confidential — for family use only.
+</footer>
+
+</div><!-- /.page-wrap -->
+</body>
+</html>
