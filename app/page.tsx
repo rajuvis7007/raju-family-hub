@@ -3,6 +3,11 @@
 import Link from 'next/link'
 import { useFamily } from './context/FamilyContext'
 import { useTasks } from './context/TasksContext'
+import { useCalendar } from './context/CalendarContext'
+
+function toYMD(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
 
 function TodayDate() {
   const today = new Date()
@@ -18,18 +23,17 @@ function TodayDate() {
   )
 }
 
-const PLACEHOLDER_EVENTS = [
-  { id: 1, title: "Amrita's recital", date: 'Sat, May 18', emoji: '🎵' },
-  { id: 2, title: 'Family dinner', date: 'Sun, May 19', emoji: '🍽️' },
-  { id: 3, title: "Shreya's exam", date: 'Mon, May 20', emoji: '📝' },
-]
-
 export default function DashboardPage() {
   const { members, activeMember, setActiveMember } = useFamily()
   const { tasks } = useTasks()
+  const { events } = useCalendar()
 
   const memberById = Object.fromEntries(members.map((m) => [m.id, m]))
   const recentOpenTasks = tasks.filter((t) => !t.done).slice(0, 4)
+  const today = toYMD(new Date())
+  const upcomingEvents = events
+    .filter((e) => e.eventDate >= today)
+    .slice(0, 5)
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
@@ -135,26 +139,37 @@ export default function DashboardPage() {
             <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
               Coming Up
             </h2>
-            <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600">
-              {PLACEHOLDER_EVENTS.length} events
-            </span>
+            <Link
+              href="/calendar"
+              className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600 hover:bg-indigo-100 transition-colors"
+            >
+              {upcomingEvents.length} events →
+            </Link>
           </div>
-          <ul className="space-y-3">
-            {PLACEHOLDER_EVENTS.map((event) => (
-              <li
-                key={event.id}
-                className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3"
-              >
-                <span className="text-xl">{event.emoji}</span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-slate-800">
-                    {event.title}
-                  </p>
-                  <p className="text-xs text-slate-500">{event.date}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          {upcomingEvents.length === 0 ? (
+            <p className="text-sm text-slate-400">No upcoming events.</p>
+          ) : (
+            <ul className="space-y-3">
+              {upcomingEvents.map((event) => {
+                const member = memberById[event.memberId]
+                const dateLabel = new Date(event.eventDate + 'T00:00:00').toLocaleDateString('en-US', {
+                  weekday: 'short', month: 'short', day: 'numeric',
+                })
+                return (
+                  <li
+                    key={event.id}
+                    className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3"
+                  >
+                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${member?.colors.bg ?? 'bg-slate-400'}`} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-slate-800">{event.title}</p>
+                      <p className="text-xs text-slate-500">{dateLabel}</p>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
         </section>
       </div>
     </div>
