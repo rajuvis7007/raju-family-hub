@@ -241,11 +241,11 @@ export function UploadFlow({ preselectedAlbumId, onClose, onDone }: Props) {
                 <p className="text-sm font-medium text-slate-600">
                   {isDragging ? 'Drop photos here' : 'Click or drag photos here'}
                 </p>
-                <p className="mt-1 text-xs text-slate-400">PNG, JPG, HEIC, WEBP supported</p>
+                <p className="mt-1 text-xs text-slate-400">Images (JPG, PNG, HEIC) and videos (MP4, MOV) supported</p>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   multiple
                   className="hidden"
                   onChange={(e) => acceptFiles(Array.from(e.target.files ?? []))}
@@ -254,16 +254,35 @@ export function UploadFlow({ preselectedAlbumId, onClose, onDone }: Props) {
 
               {files.length > 0 && (
                 <div className="grid grid-cols-4 gap-2">
-                  {previews.map((url, i) => (
+                  {files.map((file, i) => (
                     <div key={i} className="group relative aspect-square overflow-hidden rounded-lg bg-slate-100">
-                      <Image
-                        src={url}
-                        alt={`Preview ${i + 1}`}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                        sizes="25vw"
-                      />
+                      {file.type.startsWith('video/') ? (
+                        <>
+                          <video
+                            src={previews[i]}
+                            className="h-full w-full object-cover"
+                            muted
+                            preload="metadata"
+                            playsInline
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="rounded-full bg-black/50 p-1.5">
+                              <svg className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                              </svg>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <Image
+                          src={previews[i]}
+                          alt={`Preview ${i + 1}`}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                          sizes="25vw"
+                        />
+                      )}
                       <button
                         onClick={(e) => { e.stopPropagation(); removeFile(i) }}
                         className="absolute right-0.5 top-0.5 rounded-full bg-black/50 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500"
@@ -435,14 +454,24 @@ export function UploadFlow({ preselectedAlbumId, onClose, onDone }: Props) {
               {Object.values(progress).map((item) => (
                 <div key={item.id} className="flex items-center gap-3">
                   <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                    <Image
-                      src={item.previewUrl}
-                      alt={item.file.name}
-                      width={40}
-                      height={40}
-                      className="h-full w-full object-cover"
-                      unoptimized
-                    />
+                    {item.file.type.startsWith('video/') ? (
+                      <video
+                        src={item.previewUrl}
+                        className="h-full w-full object-cover"
+                        muted
+                        preload="metadata"
+                        playsInline
+                      />
+                    ) : (
+                      <Image
+                        src={item.previewUrl}
+                        alt={item.file.name}
+                        width={40}
+                        height={40}
+                        className="h-full w-full object-cover"
+                        unoptimized
+                      />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs text-slate-600">{item.file.name}</p>

@@ -16,6 +16,7 @@ export interface Photo {
   id: string
   albumId: string
   storageUrl: string
+  mediaType: 'image' | 'video'
   caption: string | null
   uploadedBy: string            // family member id
   createdAt: string             // ISO timestamp
@@ -50,6 +51,7 @@ export function rowToPhoto(row: AnyRow): Photo {
     id:         row.id          as string,
     albumId:    row.album_id    as string,
     storageUrl: row.storage_url as string,
+    mediaType:  (row.media_type as string) === 'video' ? 'video' : 'image',
     caption:    (row.caption    as string | null) ?? null,
     uploadedBy: row.uploaded_by_member_id as string,
     createdAt:  row.created_at  as string,

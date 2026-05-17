@@ -202,9 +202,11 @@ export function PhotosProvider({ children }: { children: React.ReactNode }) {
         .from(PHOTOS_BUCKET)
         .getPublicUrl(path)
 
+      const mediaType = file.type.startsWith('video/') ? 'video' : 'image'
+
       const { data: photoRow, error: dbErr } = await supabase
         .from('photos')
-        .insert({ album_id: albumId, storage_url: publicUrl, uploaded_by_member_id: uploaderId })
+        .insert({ album_id: albumId, storage_url: publicUrl, uploaded_by_member_id: uploaderId, media_type: mediaType })
         .select()
         .single()
 
@@ -221,12 +223,17 @@ export function PhotosProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Update state: photos list + album cover / count
+    // Only images are used as album covers; videos are skipped for cover selection.
     if (uploaded.length > 0) {
-      await supabase
-        .from('albums')
-        .update({ cover_photo_url: uploaded[0].storageUrl })
-        .eq('id', albumId)
-        .is('cover_photo_url', null)
+      const firstImageUrl = uploaded.find((p) => p.mediaType === 'image')?.storageUrl ?? null
+
+      if (firstImageUrl) {
+        await supabase
+          .from('albums')
+          .update({ cover_photo_url: firstImageUrl })
+          .eq('id', albumId)
+          .is('cover_photo_url', null)
+      }
 
       setState((s) => ({
         ...s,
@@ -235,7 +242,7 @@ export function PhotosProvider({ children }: { children: React.ReactNode }) {
           a.id !== albumId ? a : {
             ...a,
             photoCount:    a.photoCount + uploaded.length,
-            coverPhotoUrl: a.coverPhotoUrl ?? uploaded[0].storageUrl,
+            coverPhotoUrl: a.coverPhotoUrl ?? firstImageUrl,
           }
         ),
       }))

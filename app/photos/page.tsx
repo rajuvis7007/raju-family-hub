@@ -159,19 +159,30 @@ function PhotoLightbox({ photos, index, memberById, onClose, onNavigate }: Light
         </div>
       </div>
 
-      {/* Image area */}
+      {/* Media area */}
       <div className="relative flex flex-1 items-center justify-center overflow-hidden">
         <div className="absolute inset-0" onClick={onClose} />
-        <div className="relative z-10 h-full w-full" onClick={(e) => e.stopPropagation()}>
-          <Image
-            key={photo.id}
-            src={photo.storageUrl}
-            alt={`Photo ${index + 1}`}
-            fill
-            className="object-contain"
-            sizes="100vw"
-            priority
-          />
+        <div className="relative z-10 flex h-full w-full items-center justify-center" onClick={(e) => e.stopPropagation()}>
+          {photo.mediaType === 'video' ? (
+            <video
+              key={photo.id}
+              src={photo.storageUrl}
+              controls
+              autoPlay
+              playsInline
+              className="max-h-full max-w-full"
+            />
+          ) : (
+            <Image
+              key={photo.id}
+              src={photo.storageUrl}
+              alt={`Photo ${index + 1}`}
+              fill
+              className="object-contain"
+              sizes="100vw"
+              priority
+            />
+          )}
         </div>
 
         {hasPrev && (
@@ -212,13 +223,30 @@ function PhotoLightbox({ photos, index, memberById, onClose, onNavigate }: Light
                     : 'opacity-50 hover:opacity-80'
                 }`}
               >
-                <Image
-                  src={p.storageUrl}
-                  alt={`Thumbnail ${i + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="56px"
-                />
+                {p.mediaType === 'video' ? (
+                  <>
+                    <video
+                      src={p.storageUrl}
+                      className="h-full w-full object-cover"
+                      muted
+                      preload="metadata"
+                      playsInline
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <svg className="h-3 w-3 text-white drop-shadow" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                      </svg>
+                    </div>
+                  </>
+                ) : (
+                  <Image
+                    src={p.storageUrl}
+                    alt={`Thumbnail ${i + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                  />
+                )}
               </button>
             ))}
           </div>
@@ -338,14 +366,35 @@ function GalleryView() {
                   className="group relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-slate-100"
                   onClick={() => setLightboxIndex(i)}
                 >
-                  <Image
-                    src={photo.storageUrl}
-                    alt={`Photo ${i + 1}`}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 17vw"
-                  />
-                  <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/30" />
+                  {photo.mediaType === 'video' ? (
+                    <>
+                      <video
+                        src={photo.storageUrl}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        muted
+                        preload="metadata"
+                        playsInline
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors group-hover:bg-black/30">
+                        <div className="rounded-full bg-black/50 p-2 opacity-80 transition-opacity group-hover:opacity-100">
+                          <svg className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Image
+                        src={photo.storageUrl}
+                        alt={`Photo ${i + 1}`}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 17vw"
+                      />
+                      <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/30" />
+                    </>
+                  )}
 
                   {uploader && (
                     <span className={`absolute bottom-1.5 left-1.5 flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white shadow opacity-0 transition-opacity group-hover:opacity-100 ${uploader.colors.bg}`}>
