@@ -153,11 +153,6 @@ function SidebarContent({ onClose }: { onClose: () => void }) {
         </ul>
       </nav>
 
-      {/* Notifications */}
-      <div className="shrink-0 border-t border-slate-100 px-3 py-3">
-        <BellButton />
-      </div>
-
       {/* Family Members */}
       <div className="shrink-0 border-t border-slate-100 px-3 py-4">
         <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -190,6 +185,11 @@ function SidebarContent({ onClose }: { onClose: () => void }) {
             )
           })}
         </ul>
+      </div>
+
+      {/* Notifications bell — always at the very bottom */}
+      <div className="shrink-0 border-t border-slate-100 px-3 py-3">
+        <BellButton />
       </div>
     </div>
   )
