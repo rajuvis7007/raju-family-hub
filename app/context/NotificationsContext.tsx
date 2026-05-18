@@ -102,9 +102,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const { tasks } = useTasks()
   const { events } = useCalendar()
 
-  const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(
-    typeof Notification === 'undefined' ? 'unsupported' : Notification.permission
-  )
+  const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default')
 
   const requestPermission = useCallback(async () => {
     // Native: request via LocalNotifications plugin
@@ -142,7 +140,11 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
         }
       } catch { /* not native */ }
 
-      if (typeof Notification === 'undefined') return
+      if (typeof Notification === 'undefined') {
+        setPermission('unsupported')
+        return
+      }
+      setPermission(Notification.permission)
       if (Notification.permission === 'default') {
         Notification.requestPermission().then(setPermission)
       }
