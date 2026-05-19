@@ -148,15 +148,12 @@ export function TaskRow({ task, member, onToggle, onDelete, onAddAttachments }: 
   }
 
   return (
-    <div
-      onClick={onToggle}
-      className={`group flex gap-3 px-4 py-3.5 transition-colors hover:bg-slate-50 cursor-pointer active:bg-slate-100 ${task.done ? 'opacity-60' : ''}`}
-    >
-      {/* Checkbox */}
+    <div className={`group flex gap-3 px-4 py-3.5 transition-colors hover:bg-slate-50 ${task.done ? 'opacity-60' : ''}`}>
+      {/* Checkbox — large touch target via padding */}
       <button
-        onClick={(e) => e.stopPropagation()}
+        onClick={onToggle}
         aria-label={task.done ? 'Mark incomplete' : 'Mark complete'}
-        className="mt-0.5 shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+        className="-m-2 mt-[-0.125rem] shrink-0 rounded-full p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
       >
         <span className={`flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all duration-150 ${
           task.done
@@ -200,7 +197,7 @@ export function TaskRow({ task, member, onToggle, onDelete, onAddAttachments }: 
 
           {/* Attach button */}
           <button
-            onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click() }}
+            onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
             aria-label="Attach file"
             className="shrink-0 rounded-lg p-1.5 text-slate-300 transition-all hover:bg-indigo-50 hover:text-indigo-400 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-indigo-300 disabled:opacity-40"
@@ -227,7 +224,7 @@ export function TaskRow({ task, member, onToggle, onDelete, onAddAttachments }: 
           />
 
           <button
-            onClick={(e) => { e.stopPropagation(); onDelete() }}
+            onClick={onDelete}
             aria-label="Delete task"
             className="shrink-0 rounded-lg p-1.5 text-slate-300 transition-all hover:bg-red-50 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-red-300"
           >
