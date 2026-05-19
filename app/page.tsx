@@ -111,21 +111,23 @@ export default function DashboardPage() {
               {recentOpenTasks.map((task) => {
                 const member = memberById[task.memberId]
                 return (
-                  <li key={task.id} className="flex items-center gap-3">
-                    <span
-                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${member?.colors.bg ?? 'bg-slate-400'}`}
-                    >
-                      {member?.initials ?? '?'}
-                    </span>
-                    <span className="flex-1 text-sm text-slate-700">{task.title}</span>
-                    {task.dueDate && (
-                      <span className="text-xs text-slate-400">
-                        {new Date(task.dueDate + 'T00:00:00').toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                        })}
+                  <li key={task.id}>
+                    <Link href="/tasks" className="flex items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-slate-50 active:bg-slate-100">
+                      <span
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${member?.colors.bg ?? 'bg-slate-400'}`}
+                      >
+                        {member?.initials ?? '?'}
                       </span>
-                    )}
+                      <span className="flex-1 text-sm text-slate-700">{task.title}</span>
+                      {task.dueDate && (
+                        <span className="text-xs text-slate-400">
+                          {new Date(task.dueDate + 'T00:00:00').toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </span>
+                      )}
+                    </Link>
                   </li>
                 )
               })}
