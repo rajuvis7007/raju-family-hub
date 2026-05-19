@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { FamilyProvider } from "./context/FamilyContext";
@@ -18,6 +18,10 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  viewportFit: 'cover',
+}
 
 export const metadata: Metadata = {
   title: "Raju Family Hub",

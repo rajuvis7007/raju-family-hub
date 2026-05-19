@@ -129,7 +129,7 @@ function PhotoLightbox({ photos, index, memberById, onClose, onNavigate }: Light
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black/95" role="dialog" aria-modal="true">
       {/* Top bar */}
-      <div className="flex shrink-0 items-center justify-between px-4 py-3">
+      <div className="flex shrink-0 items-center justify-between px-4" style={{ paddingTop: 'calc(0.75rem + env(safe-area-inset-top))', paddingBottom: '0.75rem' }}>
         <div className="flex items-center gap-3">
           {uploader && (
             <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white ${uploader.colors.bg}`}>
@@ -212,7 +212,7 @@ function PhotoLightbox({ photos, index, memberById, onClose, onNavigate }: Light
       {/* Filmstrip */}
       {photos.length > 1 && (
         <div className="shrink-0 overflow-x-auto">
-          <div className="flex gap-1.5 px-4 py-3">
+          <div className="flex gap-1.5 px-4" style={{ paddingTop: '0.75rem', paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
             {photos.map((p, i) => (
               <button
                 key={p.id}

@@ -17,7 +17,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Content area — offset by sidebar width on desktop */}
       <div className="flex min-h-full flex-1 flex-col lg:pl-64">
         {/* Top bar — mobile shows hamburger + logo; desktop shows bell + member only */}
-        <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-slate-200 bg-white/80 px-4 backdrop-blur-sm">
+        <header
+          className="sticky top-0 z-40 flex shrink-0 items-center gap-3 border-b border-slate-200 bg-white/80 px-4 backdrop-blur-sm"
+          style={{ paddingTop: 'env(safe-area-inset-top)', minHeight: 'calc(3.5rem + env(safe-area-inset-top))' }}
+        >
           {/* Hamburger + logo — mobile only */}
           <button
             onClick={() => setSidebarOpen(true)}
@@ -69,7 +72,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}>
           {children}
         </main>
       </div>
