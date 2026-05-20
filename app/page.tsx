@@ -29,10 +29,12 @@ export default function DashboardPage() {
   const { events } = useCalendar()
 
   const memberById = Object.fromEntries(members.map((m) => [m.id, m]))
-  const recentOpenTasks = tasks.filter((t) => !t.done).slice(0, 4)
+  const recentOpenTasks = tasks
+    .filter((t) => !t.done && (!activeMember || t.memberId === activeMember.id))
+    .slice(0, 4)
   const today = toYMD(new Date())
   const upcomingEvents = events
-    .filter((e) => e.eventDate >= today)
+    .filter((e) => e.eventDate >= today && (!activeMember || e.memberId === activeMember.id))
     .slice(0, 5)
 
   return (

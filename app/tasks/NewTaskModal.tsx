@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useFamily } from '../context/FamilyContext'
-import { useTasks, type AttachmentFile, type AttachmentMediaType, validateAttachmentSize } from '../context/TasksContext'
+import { useTasks, type AttachmentFile, type AttachmentMediaType, type Task, validateAttachmentSize } from '../context/TasksContext'
 import { useToast } from '../context/ToastContext'
 
 type Props = {
   onClose: () => void
+  task?: Task
 }
 
 type PickedFile = { file: File; mediaType: AttachmentMediaType }
@@ -47,14 +48,15 @@ function AttachmentIcon({ type }: { type: AttachmentMediaType }) {
   }
 }
 
-export function NewTaskModal({ onClose }: Props) {
+export function NewTaskModal({ onClose, task }: Props) {
   const { members } = useFamily()
-  const { addTask } = useTasks()
+  const { addTask, updateTask } = useTasks()
   const { addToast } = useToast()
+  const isEditing = !!task
 
-  const [title, setTitle] = useState('')
-  const [memberId, setMemberId] = useState<string | null>(null)
-  const [dueDate, setDueDate] = useState('')
+  const [title, setTitle] = useState(task?.title ?? '')
+  const [memberId, setMemberId] = useState<string | null>(task?.memberId ?? null)
+  const [dueDate, setDueDate] = useState(task?.dueDate ?? '')
   const [attachments, setAttachments] = useState<PickedFile[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -68,7 +70,6 @@ export function NewTaskModal({ onClose }: Props) {
     return () => { document.body.style.overflow = prev }
   }, [])
 
-  const todayMin = new Date().toLocaleDateString('en-CA')
   const canSubmit = title.trim().length > 0 && memberId !== null && !isSubmitting
 
   function handleBackdropKeyDown(e: React.KeyboardEvent) {
@@ -95,10 +96,14 @@ export function NewTaskModal({ onClose }: Props) {
     e.preventDefault()
     if (!canSubmit) return
     setIsSubmitting(true)
-    const files: AttachmentFile[] = attachments.map(({ file, mediaType }) => ({ file, mediaType }))
-    const { failedNames } = await addTask({ title: title.trim(), memberId: memberId!, dueDate: dueDate || null }, files)
-    if (failedNames.length > 0) {
-      addToast(`${failedNames.length} attachment${failedNames.length > 1 ? 's' : ''} failed to upload`, 'error')
+    if (isEditing) {
+      await updateTask(task!.id, { title: title.trim(), memberId: memberId!, dueDate: dueDate || null })
+    } else {
+      const files: AttachmentFile[] = attachments.map(({ file, mediaType }) => ({ file, mediaType }))
+      const { failedNames } = await addTask({ title: title.trim(), memberId: memberId!, dueDate: dueDate || null }, files)
+      if (failedNames.length > 0) {
+        addToast(`${failedNames.length} attachment${failedNames.length > 1 ? 's' : ''} failed to upload`, 'error')
+      }
     }
     setIsSubmitting(false)
     onClose()
@@ -120,7 +125,7 @@ export function NewTaskModal({ onClose }: Props) {
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-          <h2 id="modal-title" className="text-base font-semibold text-slate-900">New Task</h2>
+          <h2 id="modal-title" className="text-base font-semibold text-slate-900">{isEditing ? 'Edit Task' : 'New Task'}</h2>
           <button
             onClick={onClose}
             className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
@@ -184,13 +189,12 @@ export function NewTaskModal({ onClose }: Props) {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              min={todayMin}
               className="w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
           </div>
 
-          {/* Attachments */}
-          <div className="space-y-2">
+          {/* Attachments — only when creating */}
+          {!isEditing && <div className="space-y-2">
             <p className="text-sm font-medium text-slate-700">
               Attachments <span className="font-normal text-slate-400">(optional)</span>
             </p>
@@ -241,7 +245,7 @@ export function NewTaskModal({ onClose }: Props) {
               className="hidden"
               onChange={(e) => pickFiles(e.target.files)}
             />
-          </div>
+          </div>}
 
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-1">
@@ -257,7 +261,7 @@ export function NewTaskModal({ onClose }: Props) {
               disabled={!canSubmit}
               className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {isSubmitting ? 'Adding…' : 'Add Task'}
+              {isSubmitting ? (isEditing ? 'Saving…' : 'Adding…') : (isEditing ? 'Save Changes' : 'Add Task')}
             </button>
           </div>
         </form>

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useFamily } from '../context/FamilyContext'
-import { useTasks } from '../context/TasksContext'
+import { useTasks, type Task } from '../context/TasksContext'
 import { MemberFilter } from './MemberFilter'
 import { TaskRow } from './TaskRow'
 import { NewTaskModal } from './NewTaskModal'
@@ -13,6 +13,7 @@ export default function TasksPage() {
 
   const [filterMemberId, setFilterMemberId] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
 
   const memberById = useMemo(
     () => Object.fromEntries(members.map((m) => [m.id, m])),
@@ -120,6 +121,7 @@ export default function TasksPage() {
                           member={memberById[task.memberId]}
                           onToggle={() => toggleDone(task.id)}
                           onDelete={() => deleteTask(task.id)}
+                          onEdit={() => setEditingTask(task)}
                           onAddAttachments={(files) => addAttachments(task.id, task.memberId, files)}
                         />
                       </li>
@@ -144,6 +146,7 @@ export default function TasksPage() {
                           member={memberById[task.memberId]}
                           onToggle={() => toggleDone(task.id)}
                           onDelete={() => deleteTask(task.id)}
+                          onEdit={() => setEditingTask(task)}
                           onAddAttachments={(files) => addAttachments(task.id, task.memberId, files)}
                         />
                       </li>
@@ -170,6 +173,7 @@ export default function TasksPage() {
       </div>
 
       {showModal && <NewTaskModal onClose={() => setShowModal(false)} />}
+      {editingTask && <NewTaskModal task={editingTask} onClose={() => setEditingTask(null)} />}
     </>
   )
 }

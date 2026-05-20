@@ -38,6 +38,12 @@ type AddTaskInput = {
   dueDate: string | null
 }
 
+type UpdateTaskInput = {
+  title: string
+  memberId: string
+  dueDate: string | null
+}
+
 // ── File size limits ──────────────────────────────────────────────────────────
 
 const MAX_ATTACHMENT_BYTES: Record<AttachmentMediaType, number> = {
@@ -151,6 +157,7 @@ type ContextValue = {
   hasMoreDone: boolean
   isLoadingMore: boolean
   addTask: (input: AddTaskInput, files: AttachmentFile[]) => Promise<{ failedNames: string[] }>
+  updateTask: (id: string, input: UpdateTaskInput) => Promise<void>
   addAttachments: (taskId: string, memberId: string, files: AttachmentFile[]) => Promise<{ failedNames: string[] }>
   loadMoreDone: () => Promise<void>
   toggleDone: (id: string) => Promise<void>
@@ -293,6 +300,22 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     return { failedNames }
   }, [])
 
+  // ── updateTask ────────────────────────────────────────────────────────────
+
+  const updateTask = useCallback(async (id: string, input: UpdateTaskInput) => {
+    const supabase = getSupabaseClient()
+    setTasks((prev) => prev.map((t) =>
+      t.id !== id ? t : { ...t, title: input.title, memberId: input.memberId, dueDate: input.dueDate }
+    ))
+    if (supabase) {
+      await supabase.from('tasks').update({
+        title: input.title,
+        member_id: input.memberId,
+        due_date: input.dueDate,
+      }).eq('id', id)
+    }
+  }, [])
+
   // ── toggleDone ────────────────────────────────────────────────────────────
 
   const toggleDone = useCallback(async (id: string) => {
@@ -317,7 +340,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   return (
     <TasksContext.Provider value={{
       tasks, isLoading, hasMoreDone, isLoadingMore,
-      addTask, addAttachments, loadMoreDone, toggleDone, deleteTask,
+      addTask, updateTask, addAttachments, loadMoreDone, toggleDone, deleteTask,
     }}>
       {children}
     </TasksContext.Provider>

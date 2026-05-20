@@ -12,6 +12,7 @@ type Props = {
   member: FamilyMember | undefined
   onToggle: () => void
   onDelete: () => void
+  onEdit: () => void
   onAddAttachments: (files: AttachmentFile[]) => Promise<{ failedNames: string[] }>
 }
 
@@ -121,7 +122,7 @@ function AttachmentChip({ attachment }: { attachment: TaskAttachment }) {
 
 // ── TaskRow ───────────────────────────────────────────────────────────────────
 
-export function TaskRow({ task, member, onToggle, onDelete, onAddAttachments }: Props) {
+export function TaskRow({ task, member, onToggle, onDelete, onEdit, onAddAttachments }: Props) {
   const { addToast } = useToast()
   const dueDateInfo = getDueDateInfo(task.dueDate, task.done)
   const hasAttachments = task.attachments.length > 0
@@ -234,6 +235,16 @@ export function TaskRow({ task, member, onToggle, onDelete, onAddAttachments }: 
             className="hidden"
             onChange={(e) => handleFiles(e.target.files)}
           />
+
+          <button
+            onClick={() => { onEdit(); setActionsOpen(false) }}
+            aria-label="Edit task"
+            className={`shrink-0 rounded-lg p-1.5 text-slate-300 transition-all hover:bg-slate-100 hover:text-slate-500 focus-visible:ring-2 focus-visible:ring-slate-300 sm:opacity-0 sm:group-hover:opacity-100 ${actionsOpen ? 'opacity-100' : 'hidden sm:flex'}`}
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+            </svg>
+          </button>
 
           <button
             onClick={() => { onDelete(); setActionsOpen(false) }}
